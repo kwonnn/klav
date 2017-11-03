@@ -1,0 +1,4 @@
+unset username
+last.fm compat check
+last.fm now playing, previously played
+embeds instead of text messages?
