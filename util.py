@@ -14,6 +14,9 @@ async def show_command_usage(client, command, dest_channel):
     elif command == 'show':
         report += 'Show your currently-set last.fm username\n'
         report += 'Usage: .show'
+    elif command == 'unset':
+        report += 'Unset your last.fm username\n'
+        report += 'Usage: .unset'
     await client.send_message(dest_channel, report)
 
 async def command_help(client, message):
@@ -76,6 +79,35 @@ async def command_set_username(client, message):
 
     report = ':white_check_mark: {} your last.fm username has been set to: **{}**'
     report = report.format(message.author.mention, sanitize(username))
+    await client.send_message(message.channel, report)
+
+async def command_unset_username(client, message):
+    command = 'unset'
+    content = message.content.lower().strip()
+    if content[1:] != command: return
+
+    if not message.author.id in client.usernames:
+        report = ':bangbang: You haven\'t set a username yet. Use the `set` command to do so'
+        await client.send_message(message.channel, report)
+        return
+    
+    del client[message.author.id]
+
+    headers = { 'Content-Type': 'application/json; charset=utf-8', 'Data-Type': 'json', }
+    r = requests.put(client.bin, data=json.dumps(client.usernames), headers=headers)
+
+    if r is None:
+        report = ':no_entry: Failed to make HTTP request'
+        await client.send_message(message.channel, report)
+        return
+
+    if r.status_code != requests.codes.ok:
+        report = ':no_entry: Failed to unset username. Error code: **{}**'.format(r.status_code)
+        await client.send_message(message.channel, report)
+        return
+
+    report = ':white_check_mark: {} your last.fm username has been unset'
+    report = report.format(message.author.mention)
     await client.send_message(message.channel, report)
 
 async def command_check_compat(client, message):

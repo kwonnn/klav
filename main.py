@@ -28,6 +28,7 @@ class CupcakeBot(discord.Client):
         await util.command_set_username(self, message)
         await util.command_show_username(self, message)
         await util.command_check_compat(self, message)
+        await util.command_unset_username(self, message)
 
     def read_configs(self):
         r = requests.get(self.bin, verify=False)
